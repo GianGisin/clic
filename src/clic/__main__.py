@@ -1,7 +1,8 @@
 import sys, os
+from enum import Enum
 
-from .lib.count_file import count_lines
 from .lib.settings import params
+from .lib.counter import count
 
 
 def main() -> None:
@@ -10,10 +11,13 @@ def main() -> None:
         print("Expected at least one argument: file path")
         sys.exit(os.EX_USAGE)
 
-    file_path = args[1]
-    print(sys.argv)
-    with open(file_path, "r") as f:
-        print(f"Lines in the file: {count_lines(f, params("#"))}")
+    # TODO: make relative paths possible
+    count_path = args[1]
+    # TODO: how to differentiate between folder search and a single file?
+    # If a file path is passed in, set the file_extension to the extension of the file
+    print(
+        f"Total Lines: {count(count_path, params(comment_symbol="#", file_extensions=(".py",)))}"
+    )
 
 
 if __name__ == "__main__":
