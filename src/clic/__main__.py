@@ -26,7 +26,6 @@ def main() -> None:
         suffixes.add(args[2])
 
     settings = params(comment_symbol="#", file_extensions=suffixes)
-    print(settings)
 
     print(f"Total Lines: {count(count_path, settings)}")
 
