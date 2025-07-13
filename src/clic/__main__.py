@@ -1,31 +1,58 @@
-import sys, os, pathlib
+import sys, pathlib, argparse
 
 from .lib.settings import params
 from .lib.counter import count
 
 
-def main() -> None:
-    args = sys.argv
-    if len(args) < 2:
-        print("Expected at least one argument: file path")
-        sys.exit(os.EX_USAGE)
+def parse_args() -> tuple[pathlib.Path, params]:
+    parser = argparse.ArgumentParser(
+        prog="Custom Line Counter",
+        description="Count lines of code in a file or project",
+        epilog="(C) 2025 Gian Gisin",
+    )
+    parser.add_argument("filepath")
+    parser.add_argument("-s", "--comment-symbol")
+    parser.add_argument("-e", "--extension")
+    parser.add_argument("-w", "--count-whitespace", action="store_true")
+    parser.add_argument("-c", "--count-comments", action="store_true")
 
-    count_path = pathlib.Path(args[1]).expanduser()
-    if not count_path.exists():
-        print(f"The given path ('{count_path}') does not exist")
-        sys.exit(os.EX_USAGE)
+    args = parser.parse_args()
 
-    suffixes = set()
+    path = pathlib.Path(args.filepath)
 
-    if count_path.is_file():
-        suffixes.add(count_path.suffix)
-    elif len(args) < 3:
-        print("Please provide a file extension to search")
-        sys.exit(os.EX_USAGE)
+    suffix = set()
+
+    if args.extension:
+        suffix.add(args.extension)
+
+    elif path.is_file():
+        suffix.add(path.suffix)
+
     else:
-        suffixes.add(args[2])
+        raise argparse.ArgumentError(
+            None, message="File extension to search must be specified using -e"
+        )
 
-    settings = params(comment_symbol="#", file_extensions=suffixes)
+    if not args.comment_symbol:
+        raise argparse.ArgumentError(
+            None, message="You must include the comment symbol using -s"
+        )
+
+    s = params(
+        args.comment_symbol,
+        set(suffix),
+        count_comments=args.count_comments,
+        count_whitespaces=args.count_whitespace,
+    )
+    return (path, s)
+
+
+def main() -> None:
+    try:
+        count_path, settings = parse_args()
+    except argparse.ArgumentError as e:
+        print(f"Error parsing args: {e.message}")
+        sys.exit(1)
 
     print(f"Total Lines: {count(count_path, settings)}")
 
