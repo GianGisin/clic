@@ -10,6 +10,9 @@ def count(path: pathlib.Path, settings: params) -> int:
             return count_lines(f, settings)
 
     if path.is_dir():
+        for dir in settings.exclude_directories:
+            if dir in str(path):
+                return 0
         sub_total = 0
         for p in path.iterdir():
             sub_total += count(p, settings)

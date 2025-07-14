@@ -13,6 +13,7 @@ def from_local_config(path: pathlib.Path) -> params:
         file_extension=data["file_extension"],
         count_comments=data["count_comments"],
         count_whitespaces=data["count_whitespaces"],
+        exclude_directories=data["exclude_directories"],
     )
     return s
 
@@ -24,6 +25,7 @@ def write_base_config(path: pathlib.Path) -> None:
         "file_extension": "",
         "count_comments": False,
         "count_whitespaces": False,
+        "exclude_directories": [],
     }
     with path.open("w") as f:
         json.dump(config, f)
